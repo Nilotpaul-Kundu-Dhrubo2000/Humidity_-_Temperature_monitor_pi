@@ -1,128 +1,200 @@
-HTx Raspberry Pi Data Logger
+# HTx Raspberry Pi Data Logger
 
-Raspberry Pi based temperature and humidity data logger using DHT22.
+Raspberry Pi based **temperature and humidity data logger** using **DHT22**.
 
-Features
+## Features
 
-Hourly CSV logging
+- Hourly CSV logging
+- Automatic Google Drive upload
+- Remote access via Tailscale
+- RTC time backup (DS3231)
+- systemd service for auto-start
 
-Automatic Google Drive upload
+---
 
-Remote access via Tailscale
+# 1. Install Tailscale (Remote Access)
 
-RTC time backup (DS3231)
-
-systemd service for auto-start
-
-1. Install Tailscale (Remote Access)
+```bash
 curl -fsSL https://tailscale.com/install.sh | sh
+```
 
 Example devices:
 
-Laptop: laptop-8flnl6e0 → 100.119.9.96
-Command Prompt → 100.111.243.63
+Laptop: laptop-8flnl6e0 → 100.119.9.96  
+Command Prompt → 100.111.243.63  
 
 Test connection:
 
+```bash
 ping 100.119.9.96 -c 4
-2. Download Files via Tailscale (Linux)
+```
+
+---
+
+# 2. Download Files via Tailscale (Linux)
 
 Example:
 
+```bash
 scp rin@<ht1-tailscale-ip>:/home/rin/Documents/ht1/storage/HT1_data_2026-02-28_01.csv ~/Downloads/
-3. Install System Packages
+```
+
+---
+
+# 3. Install System Packages
 
 Update system:
 
+```bash
 sudo apt update
 sudo apt upgrade
+```
 
-Install required packages:
+Install required packages (outside virtual environment):
 
+```bash
 sudo apt install python3-pip python3-dev python3-venv gpiod python3-libgpiod
-4. Install Python Libraries
+```
+
+---
+
+# 4. Install Python Libraries
+
+```bash
 pip install adafruit-blinka adafruit-circuitpython-dht RPi.GPIO pandas
-5. Install rclone (Google Drive Sync)
+```
+
+---
+
+# 5. Install rclone (Google Drive Sync)
+
+```bash
 curl https://rclone.org/install.sh | sudo bash
-6. Configure Google Drive
+```
+
+---
+
+# 6. Configure Google Drive
 
 Run configuration:
 
+```bash
 rclone config
+```
 
-Steps:
+Follow these steps:
 
-n → new remote
-Name → gdrive
-Storage → drive
-Client ID → Enter
-Client Secret → Enter
-Scope → 1
-Root folder → Enter
-Service account → Enter
-Advanced config → n
-Auto config → n
+```
+n (new remote)
+Name: gdrive
+Storage: drive
+Client ID: Enter
+Client Secret: Enter
+Scope: 1
+Root folder ID: Enter
+Service account: Enter
+Advanced config: n
+Auto config: n
+```
 
-You will receive a URL.
+You will receive a **URL**.
 
-Authorize from Laptop
+---
+
+## Authorize from Laptop
 
 Run on laptop:
 
+```bash
 rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
+```
 
 Steps:
 
-Open URL in browser
+1. Open the URL in a browser
+2. Login to your Google account
+3. Copy the authorization code
+4. Paste it in the Raspberry Pi terminal
+5. Paste the returned token
 
-Login to Google
+Finish configuration:
 
-Copy authorization code
+```
+Configure as team drive: n
+Confirm: y
+Quit: q
+```
 
-Paste it in Raspberry Pi terminal
+---
 
-Paste returned token
+# 7. Test Google Drive Connection
 
-Finish setup:
-
-Configure as team drive → n
-Confirm → y
-Quit → q
-7. Test Google Drive
+```bash
 rclone lsd gdrive:
-8. Enable DS3231 RTC
+```
+
+If successful, it will list your Google Drive folders.
+
+---
+
+# 8. Enable DS3231 RTC
 
 Edit config:
 
+```bash
 sudo nano /boot/firmware/config.txt
+```
 
-Add:
+Add the following at the bottom:
 
+```
 dtoverlay=i2c-rtc,ds3231
+```
 
 Reboot:
 
+```bash
 sudo reboot
-9. Install Hardware Clock Tools
+```
+
+---
+
+# 9. Install Hardware Clock Tools
+
+```bash
 sudo apt install util-linux -y
+```
 
 Check time:
 
+```bash
 timedatectl
+```
 
-Example output:
+Example expected output:
 
+```
 Local time: Fri 2026-03-13 23:46:54 +06
 Universal time: Fri 2026-03-13 17:46:54 UTC
 RTC time: Fri 2026-03-13 17:46:54
 Time zone: Asia/Dhaka
 System clock synchronized: yes
 NTP service: active
-10. Create systemd Service
+```
+
+---
+
+# 10. Create systemd Service
+
+Create service file:
+
+```bash
 sudo nano /etc/systemd/system/datalogger.service
+```
 
-Example:
+Example service configuration:
 
+```ini
 [Unit]
 Description=HT Data Logger
 After=network.target
@@ -135,19 +207,69 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-11. Enable Logger
+```
+
+---
+
+# 11. Enable and Start Logger
+
+Reload systemd:
+
+```bash
 sudo systemctl daemon-reload
+```
+
+Enable service:
+
+```bash
 sudo systemctl enable datalogger.service
+```
+
+Start service:
+
+```bash
 sudo systemctl start datalogger.service
-12. View Live Logs
+```
+
+---
+
+# 12. View Live Logger Output
+
+```bash
 journalctl -u datalogger.service -f
-Directory Structure
+```
+
+---
+
+# Directory Structure
+
+```
 Documents/
  ├── ht3/
  │   ├── datalogger.py
  │   ├── dht22_test.py
  │   └── storage/
  │       └── HT3_data_YYYY-MM-DD_HH.csv
-Example CSV Output
+```
+
+---
+
+# Example CSV Output
+
+```
 device,timestamp,temperature_C,humidity_%
 HT3,2026-03-14 00:05:08,29.7,65.9
+```
+
+---
+
+# Features
+
+✔ Hourly CSV logging  
+✔ Automatic Google Drive upload  
+✔ Sensor auto-reset on failure  
+✔ Works offline and syncs later  
+✔ systemd auto-start  
+✔ Remote access via Tailscale  
+
+---
