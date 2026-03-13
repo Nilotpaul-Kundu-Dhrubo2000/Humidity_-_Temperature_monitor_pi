@@ -1,6 +1,8 @@
 HTx Raspberry Pi Data Logger
 
-Raspberry Pi based temperature and humidity data logger using DHT22, with:
+Raspberry Pi based temperature and humidity data logger using DHT22.
+
+Features
 
 Hourly CSV logging
 
@@ -35,7 +37,7 @@ Update system:
 sudo apt update
 sudo apt upgrade
 
-Install required packages (outside virtual environment):
+Install required packages:
 
 sudo apt install python3-pip python3-dev python3-venv gpiod python3-libgpiod
 4. Install Python Libraries
@@ -48,54 +50,53 @@ Run configuration:
 
 rclone config
 
-Follow these steps:
+Steps:
 
-n (new remote)
-Name: gdrive
-Storage: drive
-Client ID: Enter
-Client Secret: Enter
-Scope: 1
-Root folder ID: Enter
-Service account: Enter
-Advanced config: n
-Auto config: n
+n → new remote
+Name → gdrive
+Storage → drive
+Client ID → Enter
+Client Secret → Enter
+Scope → 1
+Root folder → Enter
+Service account → Enter
+Advanced config → n
+Auto config → n
 
 You will receive a URL.
 
 Authorize from Laptop
 
-On your laptop run:
+Run on laptop:
 
 rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
 
-Open the provided URL
+Steps:
+
+Open URL in browser
 
 Login to Google
 
-Copy the authorization code
+Copy authorization code
 
-Paste it into the Raspberry Pi terminal
+Paste it in Raspberry Pi terminal
 
-Then paste the token provided by the laptop.
+Paste returned token
 
-Finish configuration:
+Finish setup:
 
-Configure as team drive: n
-Confirm: y
-Quit: q
-7. Test Google Drive Connection
+Configure as team drive → n
+Confirm → y
+Quit → q
+7. Test Google Drive
 rclone lsd gdrive:
-
-If successful, it will list your Google Drive folders.
-
 8. Enable DS3231 RTC
 
 Edit config:
 
 sudo nano /boot/firmware/config.txt
 
-Add at the bottom:
+Add:
 
 dtoverlay=i2c-rtc,ds3231
 
@@ -109,7 +110,7 @@ Check time:
 
 timedatectl
 
-Expected output example:
+Example output:
 
 Local time: Fri 2026-03-13 23:46:54 +06
 Universal time: Fri 2026-03-13 17:46:54 UTC
@@ -118,9 +119,6 @@ Time zone: Asia/Dhaka
 System clock synchronized: yes
 NTP service: active
 10. Create systemd Service
-
-Create service file:
-
 sudo nano /etc/systemd/system/datalogger.service
 
 Example:
@@ -137,20 +135,11 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-11. Enable and Start Logger
-
-Reload systemd:
-
+11. Enable Logger
 sudo systemctl daemon-reload
-
-Enable service:
-
 sudo systemctl enable datalogger.service
-
-Start service:
-
 sudo systemctl start datalogger.service
-12. View Live Logger Output
+12. View Live Logs
 journalctl -u datalogger.service -f
 Directory Structure
 Documents/
@@ -159,17 +148,6 @@ Documents/
  │   ├── dht22_test.py
  │   └── storage/
  │       └── HT3_data_YYYY-MM-DD_HH.csv
-Data Format
-
-Example CSV:
-
+Example CSV Output
 device,timestamp,temperature_C,humidity_%
 HT3,2026-03-14 00:05:08,29.7,65.9
-Features
-
-✔ Hourly CSV logging
-✔ Automatic Google Drive upload
-✔ Sensor auto-reset on failure
-✔ Works offline and syncs later
-✔ systemd auto-start
-✔ Remote access via Tailscale
