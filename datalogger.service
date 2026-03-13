@@ -1,0 +1,13 @@
+[Unit]
+Description=Pi Data Logger
+After=network.target
+
+[Service]
+ExecStart=/home/rin/venv/bin/python -u /home/rin/Documents/ht3/actual_data_logger.py
+WorkingDirectory=/home/rin/Documents/ht3
+Restart=always
+RestartSec=10
+User=rin
+
+[Install]
+WantedBy=multi-user.target
