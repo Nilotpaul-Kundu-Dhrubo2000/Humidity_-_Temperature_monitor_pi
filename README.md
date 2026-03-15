@@ -27,9 +27,11 @@ curl -fsSL https://tailscale.com/install.sh | sh
 
 Example devices:
 
-Laptop: laptop-8flnl6e0 → 100.119.9.96  
-Command Prompt → 100.111.243.63  
-
+In command promt of laptop or PC :
+```bash
+ssh@ip
+```
+The ip address can be from logging into the tailscale account.
 
 # 3. Install System Packages
 
