@@ -11,8 +11,15 @@ Raspberry Pi based **temperature and humidity data logger** using **DHT22**.
 - systemd service for auto-start
 
 ---
+# 1. Log in to Pi (Connected via local network)
 
-# 1. Install Tailscale (Remote Access)
+```bash
+ssh rin@device_name.local
+- then enter password which was saved via installtion
+Remember, while installtion, hostname must be ht_device_number and username rin, then you will get write ssh rin@ht1.local like that. 
+```
+
+# 2. Install Tailscale (Remote Access)
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
@@ -23,23 +30,6 @@ Example devices:
 Laptop: laptop-8flnl6e0 → 100.119.9.96  
 Command Prompt → 100.111.243.63  
 
-Test connection:
-
-```bash
-ping 100.119.9.96 -c 4
-```
-
----
-
-# 2. Download Files via Tailscale (Linux)
-
-Example:
-
-```bash
-scp rin@<ht1-tailscale-ip>:/home/rin/Documents/ht1/storage/HT1_data_2026-02-28_01.csv ~/Downloads/
-```
-
----
 
 # 3. Install System Packages
 
@@ -58,15 +48,24 @@ sudo apt install python3-pip python3-dev python3-venv gpiod python3-libgpiod
 
 ---
 
-# 4. Install Python Libraries
+# 4. Create Virtual Environment 
+```bash
+python3 -m venv venv
+```
+Activate it in the home directory by 
+```bash
+source venv/bin/activate
+```
 
+# 5. Install Python Libraries
+These libraries will be needed to run both codes. 
 ```bash
 pip install adafruit-blinka adafruit-circuitpython-dht RPi.GPIO pandas
 ```
 
 ---
 
-# 5. Install rclone (Google Drive Sync)
+# 6. Install rclone (Google Drive Sync)
 
 ```bash
 curl https://rclone.org/install.sh | sudo bash
@@ -74,7 +73,7 @@ curl https://rclone.org/install.sh | sudo bash
 
 ---
 
-# 6. Configure Google Drive
+# 7. Configure Google Drive
 
 Run configuration:
 
@@ -127,7 +126,7 @@ Quit: q
 
 ---
 
-# 7. Test Google Drive Connection
+# 8. Test Google Drive Connection
 
 ```bash
 rclone lsd gdrive:
@@ -137,7 +136,7 @@ If successful, it will list your Google Drive folders.
 
 ---
 
-# 8. Enable DS3231 RTC
+# 9. Enable DS3231 RTC
 
 Edit config:
 
@@ -159,7 +158,7 @@ sudo reboot
 
 ---
 
-# 9. Install Hardware Clock Tools
+# 10. Install Hardware Clock Tools
 
 ```bash
 sudo apt install util-linux -y
@@ -184,7 +183,7 @@ NTP service: active
 
 ---
 
-# 10. Create systemd Service
+# 11. Create systemd Service
 
 Create service file:
 
@@ -201,8 +200,8 @@ After=network.target
 
 [Service]
 User=rin
-WorkingDirectory=/home/rin/Documents/ht3
-ExecStart=/home/rin/venv/bin/python /home/rin/Documents/ht3/datalogger.py
+WorkingDirectory=/home/rin/Documents/ht_device_number
+ExecStart=/home/rin/venv/bin/python /home/rin/Documents/ht_device_number/datalogger.py
 Restart=always
 
 [Install]
@@ -211,7 +210,7 @@ WantedBy=multi-user.target
 
 ---
 
-# 11. Enable and Start Logger
+# 12. Enable and Start Logger
 
 Reload systemd:
 
@@ -230,13 +229,32 @@ Start service:
 ```bash
 sudo systemctl start datalogger.service
 ```
+Restart service:
 
+```bash
+sudo systemctl restart datalogger.service
+```
+Stop service:
+
+```bash
+sudo systemctl stop datalogger.service
+```
 ---
 
-# 12. View Live Logger Output
+# 13. View Live Logger Output
 
 ```bash
 journalctl -u datalogger.service -f
+```
+
+---
+
+# 14. Download Files via Tailscale (Linux)
+
+Example:
+
+```bash
+scp rin@<ht1-tailscale-ip>:/home/rin/Documents/ht1/storage/HT1_data_2026-02-28_01.csv ~/Downloads/
 ```
 
 ---
