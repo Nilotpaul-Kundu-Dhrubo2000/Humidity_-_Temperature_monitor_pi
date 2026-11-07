@@ -49,8 +49,23 @@ sudo apt install python3-pip python3-dev python3-venv gpiod python3-libgpiod
 ```
 
 ---
+# 4. Enable I2C
+sudo raspi-config nonint do_i2c 0
 
-# 4. Create Virtual Environment 
+# Reboot Raspberry Pi
+sudo reboot
+
+# Install I2C utilities
+sudo apt update
+sudo apt install -y i2c-tools python3-smbus
+
+# Check I2C interface
+ls /dev/i2c*
+
+# Scan for connected I2C devices
+sudo i2cdetect -y 1
+
+# 5. Create Virtual Environment 
 ```bash
 python3 -m venv venv
 ```
@@ -59,7 +74,7 @@ Activate it in the home directory by
 source venv/bin/activate
 ```
 
-# 5. Install Python Libraries
+# 6. Install Python Libraries
 These libraries will be needed to run both codes. 
 ```bash
 pip install adafruit-blinka adafruit-circuitpython-dht RPi.GPIO pandas
@@ -67,7 +82,7 @@ pip install adafruit-blinka adafruit-circuitpython-dht RPi.GPIO pandas
 
 ---
 
-# 6. Install rclone (Google Drive Sync)
+# 7. Install rclone (Google Drive Sync)
 
 ```bash
 curl https://rclone.org/install.sh | sudo bash
@@ -75,7 +90,7 @@ curl https://rclone.org/install.sh | sudo bash
 
 ---
 
-# 7. Configure Google Drive
+# 8. Configure Google Drive
 
 Run configuration:
 
@@ -128,7 +143,7 @@ Quit: q
 
 ---
 
-# 8. Test Google Drive Connection
+# 9. Test Google Drive Connection
 
 ```bash
 rclone lsd gdrive:
@@ -138,7 +153,7 @@ If successful, it will list your Google Drive folders.
 
 ---
 
-# 9. Enable DS3231 RTC
+# 10. Enable DS3231 RTC
 
 Edit config:
 
@@ -160,7 +175,7 @@ sudo reboot
 
 ---
 
-# 10. Install Hardware Clock Tools
+# 11. Install Hardware Clock Tools
 
 ```bash
 sudo apt install util-linux -y
@@ -185,7 +200,7 @@ NTP service: active
 
 ---
 
-# 11. Create systemd Service
+# 12. Create systemd Service
 
 Create service file:
 
@@ -212,7 +227,7 @@ WantedBy=multi-user.target
 
 ---
 
-# 12. Enable and Start Logger
+# 13. Enable and Start Logger
 
 Reload systemd:
 
@@ -243,7 +258,7 @@ sudo systemctl stop datalogger.service
 ```
 ---
 
-# 13. View Live Logger Output
+# 14. View Live Logger Output
 
 ```bash
 journalctl -u datalogger.service -f
@@ -251,7 +266,7 @@ journalctl -u datalogger.service -f
 
 ---
 
-# 14. Download Files via Tailscale (Linux)
+# 15. Download Files via Tailscale (Linux)
 
 Example:
 
